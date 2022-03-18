@@ -722,13 +722,65 @@
                                 x:Name="PathStackPanel"
                                 Margin="4,0,0,0"
                                 VerticalAlignment="Center"
-                                Orientation="Horizontal">
+                                Orientation="Horizontal"
+                                Visibility="Collapsed">
                                 <StackPanel.Resources>
                                     <Style BasedOn="{StaticResource AdbMenuItemStyle}" TargetType="MenuItem">
                                         <Setter Property="ContextMenu" Value="{StaticResource PathButtonsMenu}" />
                                     </Style>
                                 </StackPanel.Resources>
                             </StackPanel>
+                            <Menu
+                                x:Name="BreadcrumbList"
+                                Height="24"
+                                Margin="4,0,0,0"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Center"
+                                DataContext="{Binding ElementName=MainWin, Path=PathItems, NotifyOnTargetUpdated=True}"
+                                ItemsSource="{Binding Items, NotifyOnTargetUpdated=True}">
+                                <Menu.ItemContainerStyle>
+                                    <Style BasedOn="{StaticResource AdbMenuItemStyle}" TargetType="MenuItem">
+                                        <Setter Property="Height" Value="24" />
+                                        <Setter Property="VerticalAlignment" Value="Center" />
+                                        <Setter Property="Padding" Value="5,0" />
+                                        <Setter Property="ItemsSource" Value="{Binding Children}" />
+                                    </Style>
+                                </Menu.ItemContainerStyle>
+                                <Menu.ItemTemplate>
+                                    <DataTemplate DataType="Breadcrumb">
+                                        <Grid>
+                                            <TextBlock x:Name="DisplayNameBlock" Text="{Binding DisplayName}" />
+                                            <ui:FontIcon
+                                                x:Name="Arrow"
+                                                FontSize="8"
+                                                Glyph="&#xE970;"
+                                                Style="{StaticResource GlyphFont}" />
+                                            <ui:FontIcon
+                                                x:Name="Excess"
+                                                FontSize="16"
+                                                Glyph="&#xE712;"
+                                                Style="{StaticResource GlyphFont}" />
+                                        </Grid>
+                                        <DataTemplate.Triggers>
+                                            <DataTrigger Binding="{Binding Type}" Value="Arrow">
+                                                <Setter TargetName="DisplayNameBlock" Property="Visibility" Value="Collapsed" />
+                                                <Setter TargetName="Arrow" Property="Visibility" Value="Visible" />
+                                                <Setter TargetName="Excess" Property="Visibility" Value="Collapsed" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Type}" Value="Folder">
+                                                <Setter TargetName="DisplayNameBlock" Property="Visibility" Value="Visible" />
+                                                <Setter TargetName="Arrow" Property="Visibility" Value="Collapsed" />
+                                                <Setter TargetName="Excess" Property="Visibility" Value="Collapsed" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Type}" Value="Excess">
+                                                <Setter TargetName="DisplayNameBlock" Property="Visibility" Value="Collapsed" />
+                                                <Setter TargetName="Arrow" Property="Visibility" Value="Collapsed" />
+                                                <Setter TargetName="Excess" Property="Visibility" Value="Visible" />
+                                            </DataTrigger>
+                                        </DataTemplate.Triggers>
+                                    </DataTemplate>
+                                </Menu.ItemTemplate>
+                            </Menu>
                         </Grid>
                     </Grid>
                 </StackPanel>

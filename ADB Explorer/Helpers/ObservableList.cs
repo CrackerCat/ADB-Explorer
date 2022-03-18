@@ -86,5 +86,12 @@ namespace ADB_Explorer.Helpers
             suppressOnCollectionChanged = false;
             OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
         }
+
+        public T Pop(Index index)
+        {
+            var temp = this[index];
+            Remove(temp);
+            return temp;
+        }
     }
 }

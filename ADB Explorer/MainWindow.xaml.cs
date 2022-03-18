@@ -48,6 +48,7 @@ namespace ADB_Explorer
         public static MDNS MdnsService { get; set; } = new();
         public Devices DevicesObject { get; set; } = new();
         public PairingQrClass QrClass { get; set; }
+        public CrumbPath PathItems { get; set; } = new();
 
         private double ColumnHeaderHeight
         {
@@ -299,7 +300,7 @@ namespace ADB_Explorer
 
         private void UnfocusPathBox()
         {
-            PathStackPanel.Visibility = Visibility.Visible;
+            //PathStackPanel.Visibility = Visibility.Visible;
             PathBox.Clear();
             PathBox.IsReadOnly = true;
             FileOperationsSplitView.Focus();
@@ -777,81 +778,107 @@ namespace ADB_Explorer
             if (string.IsNullOrEmpty(path))
                 return;
 
-            var expectedLength = 0.0;
-            List<MenuItem> tempButtons = new();
-            List<string> pathItems = new();
+            PathItems.UpdatePath(path);
 
-            // On special cases, cut prefix of the path and replace with a pretty button
-            var specialPair = CurrentPrettyNames.FirstOrDefault(kv => path.StartsWith(kv.Key));
-            if (specialPair.Key != null)
-            {
-                MenuItem button = CreatePathButton(specialPair);
-                tempButtons.Add(button);
-                pathItems.Add(specialPair.Key);
-                path = path[specialPair.Key.Length..].TrimStart('/');
-                expectedLength = PathButtonLength.ButtonLength(button);
-            }
+            //Menu tempMenu = new() { ItemsSource = PathItems.Items };
+            //tempMenu.ItemContainerStyle = new() { BasedOn = Resources["AdbMenuItemStyle"] as Style };
+            //tempMenu.ItemContainerStyle.Setters.Add(new Setter(PaddingProperty, new Thickness(5, 0, 5, 0)));
 
-            var dirs = path.Split('/', StringSplitOptions.RemoveEmptyEntries);
-            foreach (var dir in dirs)
-            {
-                pathItems.Add(dir);
-                var dirPath = string.Join('/', pathItems).Replace("//", "/");
-                MenuItem button = CreatePathButton(dirPath, dir);
-                tempButtons.Add(button);
-                expectedLength += PathButtonLength.ButtonLength(button);
-            }
+            ConsolidateButtons();
 
-            expectedLength += (tempButtons.Count - 1) * PathButtonLength.ButtonLength(CreatePathArrow());
+            //var expectedLength = 0.0;
+            //List<MenuItem> tempButtons = new();
+            //List<string> pathItems = new();
 
-            int i = 0;
-            for (; i < PathButtons.Count && i < tempButtons.Count; i++)
-            {
-                var oldB = PathButtons[i];
-                var newB = tempButtons[i];
-                if (oldB.Header.ToString() != newB.Header.ToString() ||
-                    oldB.Tag.ToString() != newB.Tag.ToString())
-                {
-                    break;
-                }
-            }
-            PathButtons.RemoveRange(i, PathButtons.Count - i);
-            PathButtons.AddRange(tempButtons.GetRange(i, tempButtons.Count - i));
+            //// On special cases, cut prefix of the path and replace with a pretty button
+            //var specialPair = CurrentPrettyNames.FirstOrDefault(kv => path.StartsWith(kv.Key));
+            //if (specialPair.Key != null)
+            //{
+            //    MenuItem button = CreatePathButton(specialPair);
+            //    tempButtons.Add(button);
+            //    pathItems.Add(specialPair.Key);
+            //    path = path[specialPair.Key.Length..].TrimStart('/');
+            //    expectedLength = ControlLength.GetLength(button);
+            //}
 
-            ConsolidateButtons(expectedLength);
+            //var dirs = path.Split('/', StringSplitOptions.RemoveEmptyEntries);
+            //foreach (var dir in dirs)
+            //{
+            //    pathItems.Add(dir);
+            //    var dirPath = string.Join('/', pathItems).Replace("//", "/");
+            //    MenuItem button = CreatePathButton(dirPath, dir);
+            //    tempButtons.Add(button);
+            //    expectedLength += ControlLength.GetLength(button);
+            //}
+
+            //expectedLength += (tempButtons.Count - 1) * ControlLength.GetLength(CreatePathArrow());
+
+            //int i = 0;
+            //for (; i < PathButtons.Count && i < tempButtons.Count; i++)
+            //{
+            //    var oldB = PathButtons[i];
+            //    var newB = tempButtons[i];
+            //    if (oldB.Header.ToString() != newB.Header.ToString() ||
+            //        oldB.Tag.ToString() != newB.Tag.ToString())
+            //    {
+            //        break;
+            //    }
+            //}
+            //PathButtons.RemoveRange(i, PathButtons.Count - i);
+            //PathButtons.AddRange(tempButtons.GetRange(i, tempButtons.Count - i));
+
+            //ConsolidateButtons(expectedLength);
         }
 
-        private void ConsolidateButtons(double expectedLength)
+        private void ConsolidateButtons() // double expectedLength
         {
-            if (expectedLength > PathBox.ActualWidth)
-                expectedLength += PathButtonLength.ButtonLength(CreateExcessButton());
-
-            double excessLength = expectedLength - PathBox.ActualWidth;
-            List<MenuItem> excessButtons = new();
-            PathStackPanel.Children.Clear();
-
-            if (excessLength > 10)
+            if (PathItems.Items.Count > 0)
             {
-                int i = 0;
-                while (excessLength >= 10 && PathButtons.Count - excessButtons.Count > 1)
+                if (ControlLength.GetLength(BreadcrumbList) is double pathWidth && pathWidth > PathBox.ActualWidth)
                 {
-                    excessButtons.Add(PathButtons[i]);
-                    PathButtons[i].ContextMenu = null;
-                    excessLength -= PathButtonLength.ButtonLength(PathButtons[i]);
-
-                    i++;
+                    PathItems.LastWidth = pathWidth;
+                    PathItems.ShortenPath();
                 }
-
-                AddExcessButton(excessButtons);
+                else if (PathItems.LastWidth > 0 && PathItems.LastWidth < PathBox.ActualWidth)
+                {
+                    PathItems.LengthenPath();
+                }
+                BreadcrumbList.ItemsSource = PathItems.Items;
+                BreadcrumbList.Items.Refresh();
             }
 
-            foreach (var item in PathButtons.Except(excessButtons))
-            {
-                if (PathStackPanel.Children.Count > 0)
-                    AddPathArrow();
+            //if (expectedLength > PathBox.ActualWidth)
+            //    expectedLength += ControlLength.GetLength(CreateExcessButton());
 
-                AddPathButton(item);
-            }
+            //double excessLength = expectedLength - PathBox.ActualWidth;
+            //List<MenuItem> excessButtons = new();
+            //PathStackPanel.Children.Clear();
+
+            //if (excessLength > -10)
+            //{
+            //    int i = 0;
+            //    while (excessLength >= -10 && PathButtons.Count - excessButtons.Count > 1)
+            //    {
+            //        excessButtons.Add(PathButtons[i]);
+            //        PathButtons[i].ContextMenu = null;
+            //        excessLength -= ControlLength.GetLength(PathButtons[i]);
+            //        excessLength -= ControlLength.GetLength(CreatePathArrow());
+
+            //        i++;
+            //    }
+
+            //    AddExcessButton(excessButtons);
+            //}
+
+            //foreach (var item in PathButtons.Except(excessButtons))
+            //{
+            //    if (PathStackPanel.Children.Count > 0)
+            //        AddPathArrow();
+
+            //    AddPathButton(item);
+            //}
+
+            //var total = ControlLength.GetLength(PathStackPanel);
         }
 
         private MenuItem CreateExcessButton()
@@ -1472,7 +1499,10 @@ namespace ADB_Explorer
 
         private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            PopulateButtons(TextHelper.GetAltText(PathBox));
+            //PopulateButtons(TextHelper.GetAltText(PathBox));
+
+            ConsolidateButtons();
+
             ResizeDetailedView();
         }
 

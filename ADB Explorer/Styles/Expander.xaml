@@ -31,27 +31,25 @@
     </Storyboard>
 
     <Storyboard x:Key="ExpandingStoryboard">
-        <BooleanAnimationUsingKeyFrames BeginTime="00:00:00"
-                                        Storyboard.TargetProperty="(helpers:ExpanderHelper.IsContentCollapsed)">
-            <DiscreteBooleanKeyFrame KeyTime="00:00:00" Value="False"/>
+        <BooleanAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetProperty="(helpers:ExpanderHelper.IsContentCollapsed)">
+            <DiscreteBooleanKeyFrame KeyTime="00:00:00" Value="False" />
         </BooleanAnimationUsingKeyFrames>
         <DoubleAnimation
+            BeginTime="00:00:00"
             Storyboard.TargetName="ExpandSite"
             Storyboard.TargetProperty="Tag"
             To="1"
-            BeginTime="00:00:00"
             Duration="{StaticResource AnimationDuration}" />
     </Storyboard>
 
     <Storyboard x:Key="CollapsingStoryboard">
         <DoubleAnimation
+            BeginTime="00:00:00"
             Storyboard.TargetName="ExpandSite"
             Storyboard.TargetProperty="Tag"
             To="0"
-            BeginTime="00:00:00"
             Duration="{StaticResource AnimationDuration}" />
-        <BooleanAnimationUsingKeyFrames BeginTime="00:00:00.2" 
-                                        Storyboard.TargetProperty="(helpers:ExpanderHelper.IsContentCollapsed)">
+        <BooleanAnimationUsingKeyFrames BeginTime="00:00:00.2" Storyboard.TargetProperty="(helpers:ExpanderHelper.IsContentCollapsed)">
             <DiscreteBooleanKeyFrame KeyTime="00:00:00" Value="True" />
         </BooleanAnimationUsingKeyFrames>
     </Storyboard>
@@ -172,7 +170,7 @@
             <Style BasedOn="{StaticResource ButtonStyle}" TargetType="Button" />
         </Style.Resources>
         <Setter Property="Foreground" Value="{DynamicResource SystemControlPageTextBaseHighBrush}" />
-        <Setter Property="helpers:ExpanderHelper.IsContentCollapsed" Value="True"/>
+        <Setter Property="helpers:ExpanderHelper.IsContentCollapsed" Value="True" />
         <Setter Property="Template">
             <!--  Template copied from ModernWPF to be modified  -->
             <Setter.Value>
@@ -249,12 +247,12 @@
                                         </Style>
                                     </StackPanel.Style>
                                     <ContentPresenter
-                                        Margin="0,2"
                                         x:Name="ContentPresenter"
-                                        Tag="False"
+                                        Margin="0,2"
                                         HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                         ContentSource="Content"
-                                        Focusable="false" />
+                                        Focusable="false"
+                                        Tag="False" />
                                 </StackPanel>
                             </StackPanel>
                         </Border>
@@ -348,7 +346,7 @@
         <Setter Property="helpers:ExpanderHelper.IsArrowVisible" Value="True" />
         <Setter Property="helpers:ExpanderHelper.IsListItem" Value="False" />
         <Setter Property="helpers:ExpanderHelper.IsHeaderVisible" Value="True" />
-        <Setter Property="ExpandDirection" Value="Down"/>
+        <Setter Property="ExpandDirection" Value="Down" />
     </Style>
 
     <Style
